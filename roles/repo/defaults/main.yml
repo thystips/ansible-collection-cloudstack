@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+repo_cloudstack_gpg_url: https://download.cloudstack.org/release.asc
+repo_cloudstack_gpg_key: /etc/apt/keyrings/cloudstack.asc
+repo_cloudstack_url: http://download.cloudstack.org/ubuntu
+repo_cloudstack_version: 4.19

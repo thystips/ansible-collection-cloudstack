@@ -1,0 +1,4 @@
+Defaults:cloudstack !requiretty
+cloudstack ALL=ALL NOPASSWD: ALL
+# TODO: Set only required permissions
+#cloudstack ALL=NOPASSWD: /usr/bin/cloudstack-setup-agent # Cannot create certificate store

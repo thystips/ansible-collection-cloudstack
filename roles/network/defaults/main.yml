@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+network_backend: native # or openvswitch
+
+network_private_device: cloudbr0
+network_public_device: cloudbr1
+
+network_network_setup: false
+network_firewall_setup: false
+
+network_config_provider: netplan
+network_netplan_config: {}

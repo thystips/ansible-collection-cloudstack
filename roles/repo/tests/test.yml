@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Test role cloudstack-repo
+  hosts: localhost
+  remote_user: root
+  roles:
+    - repo

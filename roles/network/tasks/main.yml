@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Set Cloudstack Agent Network Config
+  ansible.builtin.lineinfile:
+    path: /etc/cloudstack/agent/agent.properties
+    regexp: "^#? ?network.bridge.type="
+    line: "network.bridge.type={{ network_backend }}"
+    state: present
+  notify: Restart Cloudstack Agent
+  with_items:
+    - { regexp: "^#? ?network.bridge.type=", line: "network.bridge.type={{ network_backend }}" }
+    - { regexp: "^#? ?libvirt.vif.driver=", line: "libvirt.vif.driver={{ network_driver }}" }
+    - { regexp: "^#? ?private.network.device=", line: "private.network.device={{ network_private_device }}" }
+    - { regexp: "^#? ?public.network.device=", line: "public.network.device={{ network_public_device }}" }
+
+- name: Configure Cloudstack Compute for backend
+  ansible.builtin.include_tasks: "backend/{{ network_backend }}.yml"
+
+- name: Network configuration
+  when: network_network_setup
+  ansible.builtin.include_tasks: network.yml
+
+- name: Firewall configuration
+  when: network_firewall_setup
+  ansible.builtin.include_tasks: firewall.yml
+
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+  when: network_network_setup or network_firewall_setup

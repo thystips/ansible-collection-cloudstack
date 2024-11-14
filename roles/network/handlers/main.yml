@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Apply netplan configuration
+  ansible.builtin.command:
+    cmd: netplan apply
+  async: 45
+  poll: 0
+  changed_when: true
+
+- name: Restart Cloudstack Agent
+  ansible.builtin.systemd_service:
+    name: cloudstack-agent
+    state: restarted
+    enabled: true

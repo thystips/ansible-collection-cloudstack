@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+network_driver: "{{ 'com.cloud.hypervisor.kvm.resource.BridgeVifDriver'
+  if network_backend == 'native' else 'com.cloud.hypervisor.kvm.resource.OvsVifDriver' }}"

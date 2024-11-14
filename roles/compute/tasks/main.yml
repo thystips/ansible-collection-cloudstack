@@ -1,0 +1,122 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Cloudstack Agent installation
+  ansible.builtin.apt:
+    name:
+      - qemu-kvm
+      - cloudstack-agent
+      - ovmf
+      - aria2
+    state: present
+
+- name: Configure Libvirtd for Cloudstack
+  ansible.builtin.lineinfile:
+    path: /etc/libvirt/libvirtd.conf
+    regexp: "^#? ?{{ item.key | regex_escape() }} ?="
+    line: "{{ item.key }} = {{ item.value }}"
+  with_dict:
+    'listen_tls': '0'
+    'listen_tcp': '0'
+    'tls_port': '"16514"'
+    'tcp_port': '"16509"'
+    'auth_tcp': '"none"'
+    'mdns_adv': '0'
+  notify: restart libvirtd
+
+- name: Configure Libvirtd service for Cloudstack
+  ansible.builtin.lineinfile:
+    path: /etc/default/libvirtd
+    regexp: "^#? ?LIBVIRTD_ARGS ?="
+    line: 'LIBVIRTD_ARGS="--listen"'
+  notify:
+    - daemon reload
+    - restart libvirtd
+
+- name: Configure Libvirt service for Cloudstack
+  ansible.builtin.lineinfile:
+    path: /etc/libvirt/libvirt.conf
+    regexp: "^#? ?remote_mode ?="
+    line: 'remote_mode="legacy"'
+  notify: restart libvirtd
+
+- name: Mask Libvirtd socket activation
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    masked: true
+  notify: restart libvirtd
+  with_items:
+    - libvirtd.socket
+    - libvirtd-ro.socket
+    - libvirtd-admin.socket
+    - libvirtd-tls.socket
+    - libvirtd-tcp.socket
+
+- name: Disable apparmor for Libvirtd
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    owner: root
+    group: root
+    state: link
+  notify: disable libvirtd apparmor
+  with_items:
+    - { src: "/etc/apparmor.d/usr.sbin.libvirtd", dst: "/etc/apparmor.d/disable/usr.sbin.libvirtd" }
+    - { src: "/etc/apparmor.d/usr.lib.libvirt.virt-aa-helper", dst: "/etc/apparmor.d/disable/usr.lib.libvirt.virt-aa-helper" }
+
+- name: Enable and start Libvirtd service
+  ansible.builtin.service:
+    name: libvirtd
+    enabled: true
+    state: started
+
+- name: Get Cloudstack Controller ssh public key
+  ansible.builtin.slurp:
+    src: /var/lib/cloudstack/management/.ssh/id_rsa.pub
+  register: compute_manager_ssh_key
+  delegate_to: "{{ groups[manager] | first }}"
+
+# - name: Ensure authorized_keys is exists for root user
+#   ansible.builtin.file:
+#     path: /root/.ssh/authorized_keys
+#     state: touch
+#     mode: '0600'
+#     owner: root
+#     group: root
+
+# - name: Add authorized_keys to cloudstack user
+#   ansible.builtin.lineinfile:
+#     path: /root/.ssh/authorized_keys
+#     line: "{{ compute_manager_ssh_key.content | b64decode }}"
+#     state: present
+
+- name: Add non-root user for Cloudstack setup
+  block:
+    - name: Create cloudstack user
+      ansible.builtin.user:
+        name: cloudstack
+        shell: /usr/bin/bash
+        home: /home/cloudstack
+        createhome: true
+        state: present
+        system: true
+    - name: Copy sudo configuration for cloudstack user
+      ansible.builtin.copy:
+        src: sudoers.d/cloudstack
+        dest: /etc/sudoers.d/cloudstack
+        owner: root
+        group: root
+        mode: '0440'
+    - name: Get Cloudstack Controller ssh public key
+      ansible.builtin.slurp:
+        src: /var/lib/cloudstack/management/.ssh/id_rsa.pub
+      register: compute_manager_ssh_key
+      delegate_to: "{{ groups[manager] | first }}"
+    - name: Add authorized_keys for cloudstack user
+      ansible.builtin.template:
+        src: authorized_keys.j2
+        dest: /home/cloudstack/.ssh/authorized_keys
+        owner: cloudstack
+        group: cloudstack
+        mode: '0600'

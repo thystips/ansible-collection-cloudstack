@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: CC0-1.0
+
+namespace: thystips
+name: cloudstack
+version: 0.0.1
+readme: README.md
+authors:
+  - thystips <contact@thystips.net>
+description: Collection for installing and managing CloudStack.
+license:
+  - GPL-3.0-or-later
+tags:
+  - cloud
+  - cloudstack
+dependencies:
+  ngine_io.cloudstack: 2.5.0
+repository: https://github.com/thystips/ansible-collection-cloudstack
+# documentation: http://docs.example.com
+issues: https://github.com/thystips/ansible-collection-cloudstack/issues
+build_ignore: []

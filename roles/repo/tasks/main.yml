@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Get Cloudstack repo key
+  ansible.builtin.get_url:
+    url: "{{  repo_cloudstack_gpg_url }}"
+    dest: "{{ repo_cloudstack_gpg_key }}"
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Add Cloudstack repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ repo_cloudstack_gpg_key }}] {{ repo_cloudstack_url }} {{ ansible_distribution_release }} {{ repo_cloudstack_version }}"
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600

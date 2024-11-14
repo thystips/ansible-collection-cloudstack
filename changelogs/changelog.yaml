@@ -1,0 +1,14 @@
+---
+ancestor: null
+releases:
+  0.0.1:
+    changes:
+      breaking_changes:
+        - thystips.cloudstack - Init Collection
+      major_changes:
+        - compute - add role
+        - network - add role
+        - repo - add role
+    fragments:
+      - init_collection.yaml
+    release_date: '2024-11-14'

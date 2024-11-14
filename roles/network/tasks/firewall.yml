@@ -1,0 +1,53 @@
+---
+- name: Install firewalld
+  ansible.builtin.apt:
+    name:
+      - firewalld
+      - python3-firewall
+    state: present
+
+- name: Add firewall services rules
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    state: enabled
+    zone: public
+    permanent: true
+    immediate: true
+    offline: true
+  with_items:
+    - ssh
+
+- name: Add firewall ports rules
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    state: enabled
+    zone: public
+    permanent: true
+    immediate: true
+    offline: true
+  with_items:
+    - 1798/tcp
+    - 16514/tcp
+    - 5900-6100/tcp
+    - 49152-49216/tcp
+
+- name: Add Management Interface to firewall zone
+  ansible.posix.firewalld:
+    zone: public
+    interface: "{{ network_private_device }}"
+    state: enabled
+    permanent: true
+    immediate: true
+    offline: true
+
+- name: Disable ufw
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: false
+
+- name: Start firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true

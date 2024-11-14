@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+{{ compute_manager_ssh_key['content'] | b64decode }}
+{% for key in compute_authorized_keys | default([]) %}
+{{ key }}
+{% endfor %}

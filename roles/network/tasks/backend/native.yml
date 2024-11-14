@@ -1,0 +1,5 @@
+---
+- name: Install bridge-utils
+  ansible.builtin.apt:
+    name: bridge-utils
+    state: present

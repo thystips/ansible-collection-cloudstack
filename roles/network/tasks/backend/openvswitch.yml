@@ -1,0 +1,11 @@
+---
+- name: Install OpenvSwitch
+  ansible.builtin.apt:
+    name: openvswitch-switch
+    state: present
+
+- name: Start OpenvSwitch
+  ansible.builtin.service:
+    name: openvswitch-switch
+    state: started
+    enabled: true

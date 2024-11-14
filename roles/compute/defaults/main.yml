@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+compute_authorized_keys:
+  - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"

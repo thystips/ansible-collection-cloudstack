@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+# Collections must specify a minimum required ansible version to upload
+# to galaxy
+requires_ansible: '>=2.17.0'
+
+# Groups of actions/modules that take a common set of options
+# action_groups:
+#   group_name:
+#     - module1
+#     - module2

@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2024 ThysTips
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Reload Systemd Daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  listen: daemon reload
+
+- name: Restart Libvirtd
+  ansible.builtin.systemd:
+    name: libvirtd
+    state: restarted
+  listen: restart libvirtd
+
+- name: Parse Apparmor libvirtd
+  ansible.builtin.command:
+    cmd: apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd
+  changed_when: true
+  listen: disable libvirtd apparmor
+
+- name: Parse Apparmor virt-aa-helper
+  ansible.builtin.command:
+    cmd: apparmor_parser -R /etc/apparmor.d/disable/usr.lib.libvirt.virt-aa-helper
+  changed_when: true
+  listen: disable libvirtd apparmor
